@@ -1,9 +1,20 @@
-const { client, getAllUsers, createUser, updateUser } = require("./index");
+const {
+  client,
+  createUser,
+  updateUser,
+  getAllUsers,
+  getUserById,
+  createPost,
+  updatePost,
+  getAllPosts,
+  getPostsByUser,
+} = require("./index");
 //the built-in require function is the easiest way to include modules that exist in separate files.
 //require reads a JavaScript file, execute what's in that file, and then proceeds to return the exports object
 // which in this case are the client object, and the getAllUsers function
 
-// !!!!!! THIS IS WHERE YOU LEFT OFF 12:45am 11-9-2022 !!!!!!!
+///// DROP TABLES ///// DROP TABLES ///// DROP TABLES ///// DROP TABLES ///// DROP TABLES
+///// DROP TABLES ///// DROP TABLES ///// DROP TABLES ///// DROP TABLES ///// DROP TABLES
 const dropTables = async () => {
   try {
     console.log("Starting to drop tables...");
@@ -20,6 +31,9 @@ const dropTables = async () => {
   }
 };
 
+///// CREATE TABLES ///// CREATE TABLES  ///// CREATE TABLES ///// CREATE TABLES ///// CREATE TABLES
+///// CREATE TABLES ///// CREATE TABLES  ///// CREATE TABLES ///// CREATE TABLES ///// CREATE TABLES
+
 const createTables = async () => {
   try {
     console.log("Starting to create tables");
@@ -33,18 +47,14 @@ const createTables = async () => {
         location VARCHAR(255) NOT NULL,
         active BOOLEAN DEFAULT true
     );
-    `);
-
-    await client.query(`
         CREATE TABLE posts(
             id SERIAL PRIMARY KEY,
+            "authorId" INTEGER REFERENCES users(id),
             title VARCHAR(255) NOT NULL,
-            "authorId" INTEGER REFERENCES users(id) NOT NULL,
             content TEXT NOT NULL,
             active BOOLEAN DEFAULT true
         );
         `);
-
 
     console.log("Finsihed creating tables!");
   } catch (error) {
@@ -52,6 +62,9 @@ const createTables = async () => {
     throw error;
   }
 };
+
+///// CREATE INITIAL USERS ///// CREATE INITIAL USERS ///// CREATE INITIAL USERS ///// CREATE INITIAL USERS
+///// CREATE INITIAL USERS ///// CREATE INITIAL USERS ///// CREATE INITIAL USERS ///// CREATE INITIAL USERS
 
 const createInitialUsers = async () => {
   try {
@@ -76,34 +89,50 @@ const createInitialUsers = async () => {
       location: "Dallas, Texas",
     });
 
-    console.log("Finished creating user");
+    console.log("Finished creating initial users");
   } catch (error) {
     console.error("Error creating intitial users");
     throw error;
   }
 };
 
-const testDB = async () => {
+///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS
+///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS
+
+const createInitialPosts = async () => {
   try {
-    console.log("Starting to test database...");
+    const [albert, sandra, glamgal] = await getAllUsers();
 
-    console.log("calling getAllUsers");
-    const users = await getAllUsers();
-    console.log("results from calling getAllUsers()", users);
-
-    console.log("Calling updateUser on users[0]");
-    const updateUserResult = await updateUser(users[1].id, {
-      name: "Newname Sogood",
-      location: "Lesterville, KY",
+    console.log('creating initial posts');
+    await createPost({
+      authorId: sandra.id,
+      title: "My first post",
+      content: "This is my first post. I hope I love writing blogs as much as I love reading them.",
     });
 
-    console.log("updateUserResult", updateUserResult);
+    await createPost({
+      authorId: albert.id,
+      title: "Dog house",
+      content:
+        "I didn't know the dog house would be so miserbale.",
+    });
 
-    console.log("Finished database tests!");
+    await createPost({
+      authorId: glamgal.id,
+      title: "GlamVlog Episode 30",
+      content:
+        "Hey glamies!! During epsiode thirty you were finally learn my dirtiest glam secret.",
+    });
+    console.log("finished creating posts");
   } catch (error) {
-    console.log(error, "error testing database!");
+    console.error("error creating intial posts", error);
+    throw error;
   }
 };
+
+
+///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB
+///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB ///// REBUILD DB
 
 const rebuildDb = async () => {
   try {
@@ -112,10 +141,61 @@ const rebuildDb = async () => {
     await dropTables();
     await createTables();
     await createInitialUsers();
+    await createInitialPosts();
   } catch (error) {
     throw error;
   }
 };
+
+
+///// TEST DB ///// TEST DB ///// TEST DB  ///// TEST DB  ///// TEST DB  ///// TEST DB  ///// TEST DB
+///// TEST DB ///// TEST DB ///// TEST DB  ///// TEST DB  ///// TEST DB  ///// TEST DB  ///// TEST DB
+
+const testDB = async () => {
+  try {
+    //// START
+    console.log("Starting to test database...");
+
+    ////// get all users
+    console.log("calling getAllUsers");
+    const users = await getAllUsers();
+    console.log("results from calling getAllUsers()", users);
+
+    ///// update user
+    console.log("Calling updateUser on users[0]");
+    const updateUserResult = await updateUser(users[1].id, {
+      name: "Newname Sogood",
+      location: "Lesterville, KY",
+    });
+
+    console.log("updateUserResult", updateUserResult);
+
+    ///// get all post
+    console.log("calling getAllPosts");
+    const posts = await getAllPosts();
+    console.log("getAllPosts result:", posts);
+
+    ///// update posts
+    console.log("Calling updatePost on posts[0]");
+    const updatePostResult = await updatePost(posts[0].id, {
+      title: "New Title",
+      content: "Updated Content",
+    });
+    console.log("Result:", updatePostResult);
+
+    ///// getUserById
+    console.log("Calling getUserById with 1");
+    const albert = await getUserById(1);
+    console.log("Result:", albert);
+
+    ///FINSIH
+    console.log("Finished database tests!");
+  } catch (error) {
+    console.log(error, "error testing database!");
+  }
+};
+
+
 
 rebuildDb()
   .then(testDB)
