@@ -7,6 +7,7 @@ const {
   createPost,
   updatePost,
   getAllPosts,
+  addTagsToPost,
   createTags,
   getPostsByUser,
 } = require("./index");
@@ -151,12 +152,13 @@ const createInitialTags = async() =>{
 try {
 console.log('Starting to create tags');
 ////check
-const [happy, sad, inspo, catman] = await createTags([
-  '#happy', 
-  '#worst-day-ever', 
-  '#youcandoanything',
-  '#catmandoeverything'
-]);
+ const [happy, sad, inspo, catman] = await createTags([
+      '#happy', 
+      '#worst-day-ever', 
+      '#youcandoanything',
+      '#catmandoeverything'
+    ]);
+    /// this is tagList
 //// check
 
 
@@ -169,10 +171,14 @@ const [postOne, postTwo, postThree] = await getAllPosts();
 console.log('creating posts with tags');
 
   console.log('Finished creating tags');
+
+ 
 } catch (error) {
   console.log('Error creating tags');
   throw error
 }
+
+return
 }
 
 
