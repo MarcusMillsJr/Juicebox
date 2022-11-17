@@ -1,7 +1,7 @@
 ///// INITIALIZE CLIENT ////////// INITIALIZE CLIENT ////////// INITIALIZE CLIENT ////////// INITIALIZE CLIENT
 const { Client } = require("pg");
 
-const client = new Client("postgres://localhost:5432/juicebox-dev");
+const client = new Client("postgres://localhost:5433/juicebox-dev");
 // console.log(client, 'client');
 
 ///////////////// USER STUFF ////////////// USER STUFF ///////////////////// USER STUFF //////////
@@ -9,6 +9,7 @@ const client = new Client("postgres://localhost:5432/juicebox-dev");
 /////CREATE USER /////
 /////CREATE USER /////
 /////CREATE USER /////
+
 const createUser = async ({ username, password, name, location }) => {
   try {
     const {
@@ -49,7 +50,9 @@ const updateUser = async (id, fields = {}) => {
       .map((key, index) => `"${key}"=$${index + 1}`)
       .join(", ")
   );
+
   // converts an array into a string
+  
   try {
     const {
       rows: [user],
@@ -145,6 +148,7 @@ const createPost = async ({ authorId, title, content }) => {
 const updatePost = async (id, fields = {}) => {
   // from testDb() updateUser is called with arguments of
   //  id = users[0].id , fields = {name: "newname sogood", location: "Lesterville, KY"}
+
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
@@ -154,6 +158,7 @@ const updatePost = async (id, fields = {}) => {
   //     iterated in the same order that a normal loop would
   // 3. Object.keys ---> [fields.map(key"name", index)]
   // WHAT IS KEY / INDEX??
+
   if (setString.length === 0) {
     return;
   }
@@ -183,12 +188,17 @@ const updatePost = async (id, fields = {}) => {
 
 const getAllPosts = async () => {
   try {
-    const { rows } = await client.query(`
-    SELECT * 
+    const { rows:postIds } = await client.query(`
+    SELECT id
     FROM posts
     `);
-    console.log("this is an log in getAllUsers.. awaiting");
-    return rows;
+
+    const posts = await Promise.all(postIds.map(
+      post => getPostById(post.id)
+      ))
+
+    console.log("posts in get All Posts", posts);
+    return posts;
   } catch (error) {
     throw error;
   }
@@ -200,13 +210,18 @@ const getAllPosts = async () => {
 
 const getPostsByUser = async (userId) => {
   try {
-    const { rows } = await client.query(`
-      SELECT * 
+    const { rows:postIds } = await client.query(`
+      SELECT id 
       FROM posts
       WHERE "authorId"= ${userId};
     `);
 
-    return rows;
+    const posts = await Promise.all(postIds.map(
+      post => getPostById( post.id)
+    ))
+
+    console.log('posts by user', posts);
+    return posts;
   } catch (error) {
     throw error;
   }
@@ -217,6 +232,7 @@ const getPostsByUser = async (userId) => {
 ////// CREATE TAGS ////////
 ////// CREATE TAGS ////////
 ////// CREATE TAGS ////////
+
 const createTags = async (tagList) => {
   // console.log('tagList', tagList);
   ///// check
@@ -282,6 +298,9 @@ const createPostTag = async (postId, tagId) => {
 ////// GET POST BY ID ///////
 
 const getPostById = async (postId) => {
+
+  console.log('postId', postId);
+
   try {
     const {
       rows: [post],
@@ -293,6 +312,8 @@ const getPostById = async (postId) => {
     `,
       [postId]
     );
+
+    // console.log('these post', post);
 
     const { rows: tags } = await client.query(
       `
@@ -324,7 +345,18 @@ const getPostById = async (postId) => {
   } catch (error) {
     throw error;
   }
+
+
+  console.log();
+  console.log();
 };
+
+////// GET POST BY USER ///////
+////// GET POST BY USER ///////
+////// GET POST BY USER ///////
+
+
+
 
 ////// ADD TAGS TO POST /////
 ////// ADD TAGS TO POST /////
@@ -337,7 +369,7 @@ const addTagsToPost = async (postId, tagList) => {
     });
 
     await Promise.all(createPostTagPromises);
-
+    
     return await getPostById(postId);
   } catch (error) {
     throw error;
@@ -345,6 +377,7 @@ const addTagsToPost = async (postId, tagList) => {
 };
 
 ////////// EXPORTS //////// EXPORTS ///////// EXPORTS //////// EXPORTS //////////
+
 module.exports = {
   client,
   createUser,
