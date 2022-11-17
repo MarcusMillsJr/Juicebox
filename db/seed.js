@@ -7,6 +7,7 @@ const {
   createPost,
   updatePost,
   getAllPosts,
+  getPostsByTagName,
   addTagsToPost,
   createTags,
   getPostsByUser,
@@ -115,71 +116,71 @@ const createInitialUsers = async () => {
 ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS
 ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS ///// CREATE INITIAL POSTS
 
-const createInitialPosts = async () => {
+const createInitialPosts = async() => {
   try {
     const [albert, sandra, glamgal] = await getAllUsers();
 
-    console.log("creating initial posts");
+    console.log("Starting to create posts...");
     await createPost({
-      authorId: sandra.id,
-      title: "My first post",
-      content:
-        "This is my first post. I hope I love writing blogs as much as I love reading them.",
+      authorId: albert.id,
+      title: "First Post",
+      content: "This is my first post. I hope I love writing blogs as much as I love writing them.",
+      tags: ["#happy", "#youcandoanything"]
     });
 
     await createPost({
-      authorId: albert.id,
-      title: "Dog house",
-      content: "I didn't know the dog house would be so miserbale.",
+      authorId: sandra.id,
+      title: "How does this work?",
+      content: "Seriously, does this even do anything?",
+      tags: ["#happy", "#worst-day-ever"]
     });
 
     await createPost({
       authorId: glamgal.id,
-      title: "GlamVlog Episode 30",
-      content:
-        "Hey glamies!! During epsiode thirty you were finally learn my dirtiest glam secret.",
+      title: "Living the Glam Life",
+      content: "Do you even? I swear that half of you are posing.",
+      tags: ["#happy", "#youcandoanything", "#canmandoeverything"]
     });
-    console.log("finished creating posts");
+    console.log("Finished creating posts!");
   } catch (error) {
-    console.error("error creating intial posts", error);
+    console.log("Error creating posts!");
     throw error;
   }
-};
+}
+// /////// CREATE INITIAL TAGS ////////  CREATE INITIAL TAGS //////// CREATE INITIAL TAGS //////// CREATE INITIAL TAGS //////// 
 
-/////// CREATE INITIAL TAGS ////////  CREATE INITIAL TAGS //////// CREATE INITIAL TAGS //////// CREATE INITIAL TAGS //////// 
-
-const createInitialTags = async() =>{
-try {
-console.log('Starting to create tags');
-////check
- const [happy, sad, inspo, catman] = await createTags([
-      '#happy', 
-      '#worst-day-ever', 
-      '#youcandoanything',
-      '#catmandoeverything'
-    ]);
-    /// this is tagList
-//// check
-
+// const createInitialTags = async() =>{
+// try {
+// console.log('Starting to create tags');
+// ////check
+//  const [happy, sad, inspo, catman] = await createTags([
+//       '#happy', 
+//       '#worst-day-ever', 
+//       '#youcandoanything',
+//       '#catmandoeverything'
+//     ]);
+//     /// this is tagList
+// //// check
 
 
-const [postOne, postTwo, postThree] = await getAllPosts();
 
-    await addTagsToPost(postOne.id, [happy, inspo]);
-    await addTagsToPost(postTwo.id, [sad, inspo]);
-    await addTagsToPost(postThree.id, [happy, catman, inspo]);
-console.log('creating posts with tags');
+// const [postOne, postTwo, postThree] = await getAllPosts();
 
-  console.log('Finished creating tags');
+//     await addTagsToPost(postOne.id, [happy, inspo]);
+//     await addTagsToPost(postTwo.id, [sad, inspo]);
+//     await addTagsToPost(postThree.id, [happy, catman, inspo]);
+// console.log('creating posts with tags');
+
+//   console.log('Finished creating tags');
 
  
-} catch (error) {
-  console.log('Error creating tags');
-  throw error
-}
+// } catch (error) {
+//   console.log('Error creating tags');
+//   throw error
+// }
 
-return
-}
+// return
+// }
 
 
 
@@ -194,8 +195,9 @@ const rebuildDb = async () => {
     await createTables();
     await createInitialUsers();
     await createInitialPosts();
-    await createInitialTags();
+    // await createInitialTags();
   } catch (error) {
+    console.log('error during rebuildDb');
     throw error;
   }
 };
@@ -208,6 +210,7 @@ const testDB = async () => {
     //// START
     console.log("Starting to test database...");
 
+    
     ////// get all users
     console.log("calling getAllUsers");
     const users = await getAllUsers();
@@ -222,11 +225,18 @@ const testDB = async () => {
 
     console.log("updateUserResult", updateUserResult);
 
+    /////
+
+    console.log("Calling getPostsByTagName with #happy");
+    const postsWithHappy = await getPostsByTagName("#happy");
+    console.log("Result:", postsWithHappy);
+    
     ///// get all post
     console.log("calling getAllPosts");
     const posts = await getAllPosts();
     console.log("getAllPosts result:", posts);
 
+    
     ///// update posts
     console.log("Calling updatePost on posts[0]");
     const updatePostResult = await updatePost(posts[0].id, {
@@ -235,6 +245,14 @@ const testDB = async () => {
     });
     console.log("Result:", updatePostResult);
 
+    //// Update a Post
+  console.log("Calling updatePost on posts[1], only updating tags");
+  const updatePostTagsResult = await updatePost(posts[1].id, {
+    tags: ["#youcandoanything", "#redfish", "#bluefish"]
+  });
+  console.log("Result:", updatePostTagsResult);
+
+  
     ///// getUserById
     console.log("Calling getUserById with 1");
     const albert = await getUserById(1);
@@ -247,6 +265,8 @@ const testDB = async () => {
   } catch (error) {
     console.log(error, "error testing database!");
   }
+
+  
 };
 
 rebuildDb()
