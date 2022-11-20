@@ -35,7 +35,7 @@ const createUser = async ({ username, password, name, location }) => {
 ///// UPDATE USER /////
 
 const updateUser = async (id, fields = {}) => {
-  console.log("fields from update user", fields);
+  // console.log("fields from update user", fields);
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
@@ -44,12 +44,12 @@ const updateUser = async (id, fields = {}) => {
     return;
   }
 
-  console.log(
-    "object.keys(fields)",
-    Object.keys(fields)
-      .map((key, index) => `"${key}"=$${index + 1}`)
-      .join(", ")
-  );
+  // console.log(
+  //   "object.keys(fields)",
+  //   Object.keys(fields)
+  //     .map((key, index) => `"${key}"=$${index + 1}`)
+  //     .join(", ")
+  // );
 
   // converts an array into a string
   
@@ -212,7 +212,7 @@ const getAllPosts = async () => {
       post => getPostById(post.id)
       ))
 
-    console.log("posts in get All Posts", posts);
+    // console.log("posts in get All Posts", posts);
     return posts;
   } catch (error) {
     throw error;
@@ -235,13 +235,15 @@ const getPostsByUser = async (userId) => {
       post => getPostById( post.id)
     ))
 
-    console.log('posts by user', posts);
+    // console.log('posts by user', posts);
     return posts;
   } catch (error) {
     throw error;
   }
 };
 
+////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF
+////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF
 ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF ////////// TAG STUFF
 
 ////// CREATE TAGS ////////
@@ -256,12 +258,12 @@ const createTags = async (tagList) => {
   }
   ////check
   const insertValues = tagList.map((_, index) => `$${index + 1}`).join("), (");
-  console.log("insert values", insertValues);
+  // console.log("insert values", insertValues);
   const selectValues = tagList.map((_, index) => `$${index + 1}`).join(", ");
-  console.log("select values", selectValues);
+  // console.log("select values", selectValues);
   //// check
 
-  console.log("it works until this try");
+  // console.log("it works until this try");
   // console.log('tagList', tagList);
   try {
     await client.query(
@@ -272,7 +274,7 @@ const createTags = async (tagList) => {
       tagList
     );
 
-    console.log("Is it still working");
+    // console.log("Is it still working");
     const { rows } = await client.query(
       `
             SELECT * FROM tags
@@ -281,7 +283,7 @@ const createTags = async (tagList) => {
       tagList
     );
 
-    console.log("Is it really still working");
+    // console.log("Is it really still working");
     return rows;
   } catch (error) {
     throw error;
@@ -303,7 +305,7 @@ const createPostTag = async (postId, tagId) => {
       [postId, tagId]
     );
   } catch (error) {
-    console.log("error in creating post tag");
+    // console.log("error in creating post tag");
     throw error;
   }
 };
@@ -314,7 +316,7 @@ const createPostTag = async (postId, tagId) => {
 
 const getPostById = async (postId) => {
 
-  console.log('postId', postId);
+  // console.log('postId', postId);
 
   try {
     const {
@@ -383,6 +385,7 @@ const getPostsByTagName = async (tagName) => {
     return await Promise.all(postIds.map(
       post => getPostById(post.id)
     ));
+
   } catch (error) {
     throw error;
   }
@@ -408,6 +411,25 @@ const addTagsToPost = async (postId, tagList) => {
   }
 };
 
+
+//// GET ALL TAGS /////
+//// GET ALL TAGS /////
+//// GET ALL TAGS /////
+
+const getAllTags = async () => {
+  try {
+    const {rows} = await client.query(
+      `SELECT * FROM tags;
+      `
+      );
+
+      return rows;
+  } catch (error) {
+    console.log('error selecting tags');
+    throw error
+  }
+}
+
 ////////// EXPORTS //////// EXPORTS ///////// EXPORTS //////// EXPORTS //////////
 
 module.exports = {
@@ -423,4 +445,5 @@ module.exports = {
   createTags,
   getPostsByTagName,
   getPostsByUser,
+  getAllTags
 };
