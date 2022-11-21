@@ -14,15 +14,14 @@ usersRouter.use((req, res, next) => {
     next();
 })
 
-/// {} destructuring getAllUsers from db so it can be called from within this users file
 
-
-/// ???????????????///
-/// ???????????????///
-/// ???????????????///
 // getting information back from get all users, then sending it to be seen in the window ??
+
+/// {} destructuring getAllUsers from db so it can be called from within this users fil
+/// ???????????????///
 usersRouter.get('/', async (req, res) => {
     const users = await getAllUsers();
+    // console.log('users req', req);
 // sending the retrieved data (response(res))back to the user??
     // sending a users object that has the data(users) from getAllUsers to access 
     res.send({
@@ -31,5 +30,11 @@ usersRouter.get('/', async (req, res) => {
 
 });
 
+
+usersRouter.post('/login', async (req,res, next) => {
+    console.log('response', res);
+
+    res.end();
+})
 
 module.exports = usersRouter;
