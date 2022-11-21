@@ -1,7 +1,7 @@
 ///// INITIALIZE CLIENT ////////// INITIALIZE CLIENT ////////// INITIALIZE CLIENT ////////// INITIALIZE CLIENT
 const { Client } = require("pg");
 
-const {DATABASE_URL} = 'postgres://localhost:5432/juicebox-dev' = process.env
+const {DATABASE_URL} = 'postgres://localhost:5433/juicebox-dev' = process.env
 
 const client = new Client({
   connectionString: DATABASE_URL,
