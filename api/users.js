@@ -32,7 +32,7 @@ usersRouter.get('/', async (req, res) => {
 
 
 usersRouter.post('/login', async (req,res, next) => {
-    console.log('response', res);
+    console.log('req.body = ', req.body);
 
     res.end();
 })
