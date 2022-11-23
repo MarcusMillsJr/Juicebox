@@ -10,6 +10,8 @@ const client = new Client({
 // console.log(client, 'client');
 
 ///////////////// USER STUFF ////////////// USER STUFF ///////////////////// USER STUFF //////////
+///////////////// USER STUFF ////////////// USER STUFF ///////////////////// USER STUFF //////////
+///////////////// USER STUFF ////////////// USER STUFF ///////////////////// USER STUFF //////////
 
 /////CREATE USER /////
 /////CREATE USER /////
@@ -120,6 +122,28 @@ const getUserById = async (userId) => {
     throw error;
   }
 };
+
+////// GET USER BY USERNAME //////
+////// GET USER BY USERNAME //////
+////// GET USER BY USERNAME //////
+
+const getUserByUsername = async (username) => {
+  try {
+    const {rows: [user]} = await client.query(`
+      SELECT *
+      FROM users
+      WHERE username = $1
+    `, [username])
+
+    console.log('user getbyusername', user);
+    return user
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+
 
 ///////////////// POST STUFF ////////////// POST STUFF ///////////////////// POST STUFF //////////
 
@@ -335,6 +359,13 @@ const getPostById = async (postId) => {
       [postId]
     );
 
+    if (!post) {
+      throw {
+        name: "PostNotFoundError",
+        message: "Could not find a post with that postId"
+      };
+    }
+
     // console.log('these post', post);
 
     const { rows: tags } = await client.query(
@@ -445,8 +476,10 @@ module.exports = {
   getUserById,
   createPost,
   addTagsToPost,
+  getPostById,
   updatePost,
   getAllPosts,
+  getUserByUsername,
   createTags,
   getPostsByTagName,
   getPostsByUser,
